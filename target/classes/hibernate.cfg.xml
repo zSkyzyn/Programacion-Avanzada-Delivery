@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC
+        "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+        "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+    <session-factory>
+        <!-- Conexión a SQLite (archivo local en la raíz del proyecto) -->
+        <property name="hibernate.connection.driver_class">org.sqlite.JDBC</property>
+        <property name="hibernate.connection.url">jdbc:sqlite:delivery.db</property>
+
+        <!-- Dialecto de SQLite compatible con Hibernate 6 -->
+        <property name="hibernate.dialect">org.hibernate.community.dialect.SQLiteDialect</property>
+
+        <!-- Crea/actualiza tablas automáticamente al iniciar -->
+        <property name="hibernate.hbm2ddl.auto">update</property>
+
+        <!-- Muestra el SQL generado en consola (útil para depuración) -->
+        <property name="hibernate.show_sql">false</property>
+        <property name="hibernate.format_sql">false</property>
+
+        <!-- Entidades del modelo -->
+        <mapping class="delivery.model.Usuario"/>
+        <mapping class="delivery.model.Producto"/>
+        <mapping class="delivery.model.Repartidor"/>
+        <mapping class="delivery.model.Pedido"/>
+    </session-factory>
+</hibernate-configuration>

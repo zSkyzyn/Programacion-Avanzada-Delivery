@@ -1,0 +1,94 @@
+@startuml diagrama_flujo
+!theme plain
+skinparam backgroundColor #FAFAFA
+skinparam defaultFontName Arial
+skinparam defaultFontSize 13
+skinparam ArrowColor #2C3E50
+skinparam ActivityBorderColor #2C3E50
+
+skinparam activity {
+  BackgroundColor #D5F5E3
+  BorderColor #1E8449
+  FontColor #1A5276
+}
+
+skinparam activityDiamond {
+  BackgroundColor #FCF3CF
+  BorderColor #D4AC0D
+  FontColor #784212
+}
+
+skinparam partition {
+  BackgroundColor #EBF5FB
+  BorderColor #2471A3
+  FontColor #1A5276
+  FontStyle bold
+}
+
+title Diagrama de Flujo — Ciclo de Vida del Pedido\nPlataforma Delivery (TP-3)
+
+start
+
+partition "🛒  CLIENTE" {
+  :Seleccionar usuario;
+  :Elegir productos del catálogo;
+  :Seleccionar método de envío\n(Moto / Bici / Auto);
+  :Sistema calcula costo\nmetodo.calcularCosto(subtotal) **[OCP]**;
+  :Confirmar y generar pedido;
+  :Pedido guardado en SQLite\nestado = **PENDIENTE**;
+}
+
+partition "🏍️  REPARTIDOR — Aceptación" {
+  :Repartidor abre Panel Repartidor;
+  :Ve lista de pedidos PENDIENTES;
+  :Selecciona un pedido y hace clic\n"Aceptar Pedido";
+
+  fork
+    :CambiarEstado\n→ EN_CAMINO;
+  fork again
+    :AsignarRepartidor\n→ vincula repartidor\n→ disponible = false;
+  fork again
+    :NotificarCliente\n"pedido aceptado";
+  end fork
+
+  note right
+    **Cadena OCP:**
+    GestorPedido.ejecutarAceptacion()
+    ejecuta todas las Accion en orden
+  end note
+
+  :Pedido actualizado en SQLite\nestado = **EN_CAMINO**;
+}
+
+partition "✅  REPARTIDOR — Entrega" {
+  :Repartidor llega al destino;
+  :Selecciona pedido EN_CAMINO;
+  :Hace clic "Confirmar Entrega";
+
+  fork
+    :CambiarEstado\n→ ENTREGADO;
+  fork again
+    :LiberarRepartidor\n→ disponible = true;
+  fork again
+    :NotificarCliente\n"pedido entregado";
+  end fork
+
+  note right
+    **Cadena OCP:**
+    GestorPedido.ejecutarEntrega()
+    ejecuta todas las Accion en orden
+  end note
+
+  :Pedido actualizado en SQLite\nestado = **ENTREGADO**;
+}
+
+stop
+
+legend right
+  |= Color |= Significado |
+  |<#D5F5E3>  | Acción del sistema |
+  |<#FCF3CF>  | Decisión / variante |
+  |<#EBF5FB>  | Actor / partición |
+endlegend
+
+@enduml

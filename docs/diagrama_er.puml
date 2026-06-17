@@ -1,0 +1,76 @@
+@startuml diagrama_er
+!theme plain
+skinparam backgroundColor #FAFAFA
+skinparam defaultFontName Arial
+skinparam defaultFontSize 13
+
+skinparam entity {
+  BackgroundColor #D6EAF8
+  BorderColor #2471A3
+  FontColor #1A5276
+  FontStyle bold
+}
+
+skinparam note {
+  BackgroundColor #FEF9E7
+  BorderColor #D4AC0D
+}
+
+title Diagrama Entidad-Relación — Plataforma Delivery
+
+entity "usuarios" as U {
+  * **id** : INTEGER (PK)
+  --
+  nombre   : TEXT
+  email    : TEXT (unique)
+  telefono : TEXT
+  tier     : TEXT
+}
+
+entity "productos" as P {
+  * **id** : INTEGER (PK)
+  --
+  nombre      : TEXT
+  descripcion : TEXT
+  precio      : REAL
+}
+
+entity "repartidores" as R {
+  * **id** : INTEGER (PK)
+  --
+  nombre     : TEXT
+  vehiculo   : TEXT
+  disponible : INTEGER (0/1)
+}
+
+entity "pedidos" as PD {
+  * **id** : INTEGER (PK)
+  --
+  estado        : TEXT
+  metodo_envio  : TEXT
+  costo_envio   : REAL
+  usuario_id    : INTEGER (FK)
+  repartidor_id : INTEGER (FK, nullable)
+}
+
+entity "pedido_productos" as PP {
+  * **pedido_id**   : INTEGER (FK)
+  * **producto_id** : INTEGER (FK)
+}
+
+note bottom of PD
+  estado: PENDIENTE | EN_CAMINO | ENTREGADO
+  metodo_envio: Moto | Bici | Auto
+end note
+
+note right of R
+  disponible = 1 → libre
+  disponible = 0 → ocupado
+end note
+
+U       ||--o{ PD  : "genera"
+R       |o--o{ PD  : "atiende"
+PD      ||--o{ PP  : "contiene"
+P       ||--o{ PP  : "aparece en"
+
+@enduml
